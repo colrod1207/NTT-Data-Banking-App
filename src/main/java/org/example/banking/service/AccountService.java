@@ -90,4 +90,19 @@ public class AccountService {
         long n = Math.abs(secureRandom.nextLong()) % 1_000_000_0000L;
         return String.format("%010d", n);
     }
+
+    // == delete ==
+    @Transactional
+    public void delete(Long accountId) {
+        BankAccount acc = accountRepository.findById(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
+
+        // Regla de negocio (opcional): no permitir eliminar si saldo ≠ 0
+        if (acc.getBalance() != 0.0) {
+            throw new IllegalArgumentException("Cannot delete account with non-zero balance");
+        }
+
+        accountRepository.delete(acc);
+    }
+
 }

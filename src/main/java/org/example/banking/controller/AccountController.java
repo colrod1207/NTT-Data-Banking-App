@@ -22,61 +22,70 @@ public class AccountController {
         this.accountService = accountService;
     }
 
-    // Crear cuenta (numeroCuenta autogenerado + saldo inicial > 0)
+    // POST /accounts: Crear una cuenta para un cliente
     @PostMapping
     public ResponseEntity<AccountResponse> open(@Valid @RequestBody OpenAccountRequest req) {
         BankAccount a = accountService.openAccount(req.getClientId(), req.getType(), req.getInitialBalance());
         return ResponseEntity.ok(AccountResponse.from(a));
     }
 
-    // Depósito
-    @PutMapping("/{id}/deposit")
-    public ResponseEntity<BalanceResponse> deposit(@PathVariable Long id,
-                                                   @Valid @RequestBody DepositRequest req) {
-        accountService.deposit(id, req.getAmount());
-        BankAccount a = accountService.get(id);
-        return ResponseEntity.ok(new BalanceResponse(a.getId(), a.getBalance()));
-    }
-
-    // Retiro
-    @PutMapping("/{id}/withdraw")
-    public ResponseEntity<BalanceResponse> withdraw(@PathVariable Long id,
-                                                    @Valid @RequestBody WithdrawRequest req) {
-        accountService.withdraw(id, req.getAmount());
-        BankAccount a = accountService.get(id);
-        return ResponseEntity.ok(new BalanceResponse(a.getId(), a.getBalance()));
-    }
-
-    // Obtener una cuenta
-    @GetMapping("/{id}")
-    public ResponseEntity<AccountResponse> get(@PathVariable Long id) {
-        return ResponseEntity.ok(AccountResponse.from(accountService.get(id)));
-    }
-
-    // Listar cuentas: /accounts?clientId=123 (si no se envía clientId, lista todas)
+    // GET /accounts: Listar TODAS las cuentas
     @GetMapping
-    public ResponseEntity<?> list(@RequestParam(required = false) Long clientId) {
-        if (clientId != null) {
-            return ResponseEntity.ok(
-                    accountService.listByClient(clientId).stream().map(AccountResponse::from).collect(Collectors.toList())
-            );
-        }
+    public ResponseEntity<?> listAll() {
         return ResponseEntity.ok(
-                accountService.listAll().stream().map(AccountResponse::from).collect(Collectors.toList())
+                accountService.listAll()
+                        .stream()
+                        .map(AccountResponse::from)
+                        .collect(Collectors.toList())
         );
     }
 
-    // (Opcional) Solo saldo
-    @GetMapping("/{id}/balance")
-    public ResponseEntity<BalanceResponse> balance(@PathVariable Long id) {
-        BankAccount a = accountService.get(id);
+    // GET /accounts/{id}: Listar cuentas por ID DE CLIENTE (requerimiento del documento)
+    @GetMapping("/{id}")
+    public ResponseEntity<?> listByClient(@PathVariable Long id) {
+        return ResponseEntity.ok(
+                accountService.listByClient(id)
+                        .stream()
+                        .map(AccountResponse::from)
+                        .collect(Collectors.toList())
+        );
+    }
+
+    // GET /accounts/by-id/{accountId}: Obtener detalles de UNA cuenta por ID DE CUENTA
+    @GetMapping("/by-id/{accountId}")
+    public ResponseEntity<AccountResponse> getAccount(@PathVariable Long accountId) {
+        return ResponseEntity.ok(AccountResponse.from(accountService.get(accountId)));
+    }
+
+    // PUT /accounts/{accountId}/deposit: Depositar en una CUENTA específica
+    @PutMapping("/{accountId}/deposit")
+    public ResponseEntity<BalanceResponse> deposit(@PathVariable Long accountId,
+                                                   @Valid @RequestBody DepositRequest req) {
+        accountService.deposit(accountId, req.getAmount());
+        BankAccount a = accountService.get(accountId);
         return ResponseEntity.ok(new BalanceResponse(a.getId(), a.getBalance()));
     }
 
-    // (Opcional) Eliminar cuenta (si agregas reglas, ponlas en AccountService.delete)
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        // accountService.delete(id);
+    // PUT /accounts/{accountId}/withdraw: Retirar de una CUENTA específica
+    @PutMapping("/{accountId}/withdraw")
+    public ResponseEntity<BalanceResponse> withdraw(@PathVariable Long accountId,
+                                                    @Valid @RequestBody WithdrawRequest req) {
+        accountService.withdraw(accountId, req.getAmount());
+        BankAccount a = accountService.get(accountId);
+        return ResponseEntity.ok(new BalanceResponse(a.getId(), a.getBalance()));
+    }
+
+    // GET /accounts/by-id/{accountId}/balance: (Opcional) Consultar solo saldo por ID DE CUENTA
+    @GetMapping("/by-id/{accountId}/balance")
+    public ResponseEntity<BalanceResponse> balance(@PathVariable Long accountId) {
+        BankAccount a = accountService.get(accountId);
+        return ResponseEntity.ok(new BalanceResponse(a.getId(), a.getBalance()));
+    }
+
+    // DELETE /accounts/by-id/{accountId}: Eliminar una cuenta por ID DE CUENTA
+    @DeleteMapping("/{accountId}")
+    public ResponseEntity<Void> delete(@PathVariable Long accountId) {
+        accountService.delete(accountId);
         return ResponseEntity.noContent().build();
     }
 }
