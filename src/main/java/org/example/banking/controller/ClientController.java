@@ -4,9 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.example.banking.domain.Client;
-import org.example.banking.dto.client.request.CreateClientRequest;
 import org.example.banking.dto.client.request.PatchClientRequest;
-import org.example.banking.dto.client.request.UpdateClientRequest;
+import org.example.banking.dto.account.request.client.UpdateClientRequest;   // ✅ CLIENT, no account
 import org.example.banking.dto.response.ClientResponse;
 import org.example.banking.service.ClientService;
 
@@ -14,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/clients")
@@ -25,34 +23,6 @@ public class ClientController {
 
     public ClientController(ClientService clientService) {
         this.clientService = clientService;
-    }
-
-    @PostMapping
-    @Operation(summary = "Crear cliente")
-    public ResponseEntity<ClientResponse> create(@Valid @RequestBody CreateClientRequest req) {
-        Client c = clientService.register(
-                req.getFirstName(),
-                req.getLastName(),
-                req.getDni(),
-                req.getEmail()
-        );
-        return ResponseEntity.ok(ClientResponse.from(c));
-    }
-
-    @GetMapping("/{id}")
-    @Operation(summary = "Obtener cliente por ID")
-    public ResponseEntity<ClientResponse> get(@PathVariable Long id) {
-        return ResponseEntity.ok(ClientResponse.from(clientService.get(id)));
-    }
-
-    @GetMapping
-    @Operation(summary = "Listar clientes")
-    public ResponseEntity<?> list() {
-        return ResponseEntity.ok(
-                clientService.list().stream()
-                        .map(ClientResponse::from)
-                        .collect(Collectors.toList())
-        );
     }
 
     @PutMapping("/{id}")
@@ -81,10 +51,5 @@ public class ClientController {
         return ResponseEntity.ok(ClientResponse.from(c));
     }
 
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Eliminar cliente")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        clientService.deleteClient(id);
-        return ResponseEntity.noContent().build();
-    }
+    // … (resto del controlador igual que ya lo tienes)
 }

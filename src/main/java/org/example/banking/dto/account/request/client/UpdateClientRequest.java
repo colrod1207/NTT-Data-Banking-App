@@ -1,4 +1,4 @@
-package org.example.banking.dto.client.request;
+package org.example.banking.dto.account.request.client;
 
 import lombok.Data;
 
