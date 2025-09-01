@@ -1,11 +1,8 @@
 package org.example.banking.dto.client.request;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter @Setter
-@NoArgsConstructor
+@Data
 public class PatchClientRequest {
     private String firstName;
     private String lastName;
