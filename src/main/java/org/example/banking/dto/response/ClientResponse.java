@@ -1,4 +1,6 @@
-package org.example.banking.dto.reponse;
+package org.example.banking.dto.response;
+
+import org.example.banking.domain.Client; // <-- importa la entidad
 
 public class ClientResponse {
     private Long id;
@@ -13,6 +15,17 @@ public class ClientResponse {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
+    }
+
+    // Factory para el controlador
+    public static ClientResponse from(Client c) {
+        return new ClientResponse(
+                c.getId(),
+                c.getDni(),
+                c.getFirstName(),
+                c.getLastName(),
+                c.getEmail()
+        );
     }
 
     public Long getId() { return id; }

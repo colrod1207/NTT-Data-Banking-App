@@ -4,7 +4,7 @@ import org.example.banking.domain.Client;
 import org.example.banking.dto.client.request.CreateClientRequest;
 import org.example.banking.dto.client.request.PatchClientRequest;
 import org.example.banking.dto.client.request.UpdateClientRequest;
-import org.example.banking.dto.reponse.ClientResponse;
+import org.example.banking.dto.response.ClientResponse;
 import org.example.banking.service.ClientService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
