@@ -1,4 +1,4 @@
-package org.example.banking.dto.client.response;
+package org.example.banking.dto.reponse;
 
 public class ClientResponse {
     private Long id;
