@@ -24,7 +24,12 @@ public class ClientController {
 
     @PostMapping
     public ResponseEntity<ClientResponse> create(@Valid @RequestBody CreateClientRequest req) {
-        Client c = clientService.register(req.getFirstName(), req.getLastName(), req.getDni(), req.getEmail());
+        Client c = clientService.register(
+                req.getFirstName(),
+                req.getLastName(),
+                req.getDni(),
+                req.getEmail()
+        );
         return ResponseEntity.ok(ClientResponse.from(c));
     }
 
@@ -36,21 +41,33 @@ public class ClientController {
     @GetMapping
     public ResponseEntity<?> list() {
         return ResponseEntity.ok(
-                clientService.list().stream().map(ClientResponse::from).collect(Collectors.toList())
+                clientService.list().stream()
+                        .map(ClientResponse::from)
+                        .collect(Collectors.toList())
         );
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ClientResponse> update(@PathVariable Long id,
                                                  @Valid @RequestBody UpdateClientRequest req) {
-        Client c = clientService.updateClient(id, req.getFirstName(), req.getLastName(), req.getEmail());
+        Client c = clientService.updateClient(
+                id,
+                req.getFirstName(),
+                req.getLastName(),
+                req.getEmail()
+        );
         return ResponseEntity.ok(ClientResponse.from(c));
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<ClientResponse> patch(@PathVariable Long id,
                                                 @RequestBody PatchClientRequest req) {
-        Client c = clientService.updateClient(id, req.getFirstName(), req.getLastName(), req.getEmail());
+        Client c = clientService.updateClient(
+                id,
+                req.getFirstName(),
+                req.getLastName(),
+                req.getEmail()
+        );
         return ResponseEntity.ok(ClientResponse.from(c));
     }
 

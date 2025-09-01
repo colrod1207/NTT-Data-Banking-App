@@ -1,68 +1,55 @@
 package org.example.banking.domain;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "clients")
 public class Client {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false) private String firstName;
-    @Column(nullable = false) private String lastName;
-    @Column(nullable = false, unique = true) private String email;
-    @Column(nullable = false, unique = true) private String dni;
+    @NotBlank
+    @Column(nullable = false, unique = true, length = 20)
+    private String dni;
 
-    protected Client() {}
+    @NotBlank
+    @Column(nullable = false, length = 50)
+    private String firstName;
 
-    public Client(String firstName, String lastName, String email, String dni) {
-        if(isBlank(firstName) || isBlank(lastName) || isBlank(email) || isBlank(dni)) {
-            throw new IllegalArgumentException("All required fields must be filled");
-        }
-        if(!email.contains("@")){
-            throw new IllegalArgumentException("Email address must be a valid email address");
-        }
+    @NotBlank
+    @Column(nullable = false, length = 50)
+    private String lastName;
+
+    @Email
+    @Column(nullable = false, unique = true, length = 100)
+    private String email;
+
+    public Client() {}
+
+    public Client(String dni, String firstName, String lastName, String email) {
+        this.dni = dni;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.dni = dni;
         this.email = email;
     }
 
-    private boolean isBlank(String s) {
-        return s == null || s.trim().isEmpty();
-    }
+    // getters/setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    // ---Getters---
-    public Long getId()
-    {
-        return id;
-    }
-    public String getFirstName() {
-        return firstName;
-    }
-    public String getLastName() {
-        return lastName;
-    }
-    public String getEmail() {
-        return email;
-    }
-    public String getDni() {
-        return dni;
-    }
+    public String getDni() { return dni; }
+    public void setDni(String dni) { this.dni = dni; }
 
-    // ---Setters---
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-    public void setEmail(String email) {
-        this.email = email;
-    }
-    public void setDni(String dni) {
-        this.dni = dni;
-    }
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
 
+    public String getLastName() { return lastName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 }
