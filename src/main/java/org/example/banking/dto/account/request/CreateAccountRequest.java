@@ -10,5 +10,5 @@ import java.math.BigDecimal;
 public class CreateAccountRequest {
     @NotNull private Long clientId;
     @NotNull private AccountType type;
-    @NotNull private BigDecimal initialDeposit; // >= 0 (validado en servicio)
+    @NotNull private BigDecimal initialDeposit;
 }

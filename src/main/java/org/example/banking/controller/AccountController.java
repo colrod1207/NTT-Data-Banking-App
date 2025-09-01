@@ -57,29 +57,33 @@ public class AccountController {
 
     @PutMapping("/accounts/{id}")
     @Operation(summary = "Actualizar tipo de cuenta (PUT)")
-    public ResponseEntity<AccountResponse> update(@PathVariable Long id, @Valid @RequestBody UpdateAccountRequest req) {
+    public ResponseEntity<AccountResponse> update(@PathVariable Long id,
+                                                  @Valid @RequestBody UpdateAccountRequest req) {
         Account a = service.updateType(id, req.getType());
         return ResponseEntity.ok(AccountResponse.from(a));
     }
 
     @PatchMapping("/accounts/{id}")
-    @Operation(summary = "Actualizar parcialmente la cuenta (type)")
-    public ResponseEntity<AccountResponse> patch(@PathVariable Long id, @RequestBody PatchAccountRequest req) {
+    @Operation(summary = "Actualizar parcialmente la cuenta (PATCH)")
+    public ResponseEntity<AccountResponse> patch(@PathVariable Long id,
+                                                 @RequestBody PatchAccountRequest req) {
         if (req.getType() == null) return ResponseEntity.ok(AccountResponse.from(service.get(id)));
         Account a = service.updateType(id, req.getType());
         return ResponseEntity.ok(AccountResponse.from(a));
     }
 
     @PostMapping("/accounts/{id}/deposit")
-    @Operation(summary = "Depositar")
-    public ResponseEntity<AccountResponse> deposit(@PathVariable Long id, @Valid @RequestBody AmountRequest req) {
+    @Operation(summary = "Depositar dinero en una cuenta")
+    public ResponseEntity<AccountResponse> deposit(@PathVariable Long id,
+                                                   @Valid @RequestBody AmountRequest req) {
         Account a = service.deposit(id, req.getAmount());
         return ResponseEntity.ok(AccountResponse.from(a));
     }
 
     @PostMapping("/accounts/{id}/withdraw")
-    @Operation(summary = "Retirar")
-    public ResponseEntity<AccountResponse> withdraw(@PathVariable Long id, @Valid @RequestBody AmountRequest req) {
+    @Operation(summary = "Retirar dinero de una cuenta")
+    public ResponseEntity<AccountResponse> withdraw(@PathVariable Long id,
+                                                    @Valid @RequestBody AmountRequest req) {
         Account a = service.withdraw(id, req.getAmount());
         return ResponseEntity.ok(AccountResponse.from(a));
     }
@@ -91,4 +95,3 @@ public class AccountController {
         return ResponseEntity.noContent().build();
     }
 }
-

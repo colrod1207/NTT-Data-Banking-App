@@ -5,5 +5,5 @@ import org.example.banking.domain.AccountType;
 
 @Data
 public class PatchAccountRequest {
-    private AccountType type; // opcional
+    private AccountType type;
 }
