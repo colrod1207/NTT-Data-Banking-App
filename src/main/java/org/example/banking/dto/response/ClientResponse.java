@@ -17,7 +17,6 @@ public class ClientResponse {
     private String lastName;
     private String email;
 
-    // Factory para convertir desde la entidad
     public static ClientResponse from(Client c) {
         return ClientResponse.builder()
                 .id(c.getId())

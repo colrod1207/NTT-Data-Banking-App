@@ -8,5 +8,5 @@ import javax.validation.constraints.NotBlank;
 public class UpdateClientRequest {
     @NotBlank private String firstName;
     @NotBlank private String lastName;
-    @Email  @NotBlank private String email;
+    @Email   @NotBlank private String email;
 }
