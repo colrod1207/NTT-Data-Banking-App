@@ -1,0 +1,289 @@
+openapi: 3.0.1
+info:
+  title: Banking API - Accounts
+  version: 1.0.0
+  description: API para gestión de cuentas (apertura, depósitos, retiros, consulta).
+servers:
+  - url: http://localhost:8080
+    description: Servidor local (AccountMs)
+
+tags:
+  - name: Accounts
+    description: Operaciones sobre cuentas
+
+paths:
+  /accounts:
+    get:
+      tags: [Accounts]
+      summary: Listar cuentas
+      responses:
+        '200':
+          description: Lista de cuentas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountResponse'
+    post:
+      tags: [Accounts]
+      summary: Abrir cuenta
+      description: Saldo inicial debe ser > 0. El `clientId` debe existir en CustomerMs.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OpenAccountRequest'
+            examples:
+              ahorro:
+                value:
+                  clientId: 10
+                  type: SAVINGS
+                  initialDeposit: 300.0
+              corriente:
+                value:
+                  clientId: 10
+                  type: CURRENT
+                  initialDeposit: 100.0
+      responses:
+        '201':
+          description: Cuenta creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+        '400':
+          description: Regla de negocio no cumplida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Cliente no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /accounts/{id}:
+    get:
+      tags: [Accounts]
+      summary: Obtener cuenta por ID
+      parameters:
+        - $ref: '#/components/parameters/PathId'
+      responses:
+        '200':
+          description: Cuenta encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+        '404':
+          description: No encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+    delete:
+      tags: [Accounts]
+      summary: Cerrar cuenta
+      description: |
+        Solo se puede cerrar si el saldo es 0.00.
+      parameters:
+        - $ref: '#/components/parameters/PathId'
+      responses:
+        '204':
+          description: Cerrada
+        '409':
+          description: Conflicto (saldo distinto de 0)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: No encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /accounts/{id}/deposit:
+    put:
+      tags: [Accounts]
+      summary: Realizar depósito
+      parameters:
+        - $ref: '#/components/parameters/PathId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AmountRequest'
+            examples:
+              ejemplo:
+                value: { amount: 150.0 }
+      responses:
+        '200':
+          description: Depósito aplicado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BalanceResponse'
+        '404':
+          description: Cuenta no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /accounts/{id}/withdraw:
+    put:
+      tags: [Accounts]
+      summary: Realizar retiro
+      description: |
+        Reglas:
+        - Cuentas **SAVINGS** no permiten saldo negativo.
+        - Cuentas **CURRENT** permiten sobregiro hasta **-500.00**.
+      parameters:
+        - $ref: '#/components/parameters/PathId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AmountRequest'
+            examples:
+              ejemplo:
+                value: { amount: 120.0 }
+      responses:
+        '200':
+          description: Retiro aplicado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BalanceResponse'
+        '409':
+          description: Regla de negocio violada (límite de sobregiro o saldo insuficiente)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Cuenta no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /accounts/client/{clientId}:
+    get:
+      tags: [Accounts]
+      summary: Listar cuentas por ID de cliente
+      parameters:
+        - in: path
+          name: clientId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: ID del cliente
+      responses:
+        '200':
+          description: Cuentas del cliente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountResponse'
+
+components:
+  parameters:
+    PathId:
+      in: path
+      name: id
+      required: true
+      schema:
+        type: integer
+        format: int64
+      description: ID de la cuenta
+
+  schemas:
+    OpenAccountRequest:
+      type: object
+      required: [clientId, type, initialDeposit]
+      properties:
+        clientId:
+          type: integer
+          format: int64
+          example: 10
+        type:
+          $ref: '#/components/schemas/AccountType'
+        initialDeposit:
+          type: number
+          format: double
+          minimum: 0.01
+          example: 300.0
+
+    AccountResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1001
+        clientId:
+          type: integer
+          format: int64
+        type:
+          $ref: '#/components/schemas/AccountType'
+        balance:
+          type: number
+          format: double
+          example: 425.0
+        createdAt:
+          type: string
+          format: date-time
+
+    AmountRequest:
+      type: object
+      required: [amount]
+      properties:
+        amount:
+          type: number
+          format: double
+          minimum: 0.01
+          example: 150.0
+
+    BalanceResponse:
+      type: object
+      properties:
+        accountId:
+          type: integer
+          format: int64
+        newBalance:
+          type: number
+          format: double
+
+    AccountType:
+      type: string
+      enum: [SAVINGS, CURRENT]
+
+    ApiError:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+          example: 409
+        error:
+          type: string
+          example: Conflict
+        message:
+          type: string
+          example: "Saldo insuficiente"
+        path:
+          type: string

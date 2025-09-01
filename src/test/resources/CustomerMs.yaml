@@ -1,0 +1,212 @@
+openapi: 3.0.1
+info:
+  title: Customer API - Clientes
+  version: 1.0.0
+  description: API para gestión de clientes (CRUD con validaciones).
+servers:
+  - url: http://localhost:8081
+    description: Servidor local (CustomerMs)
+
+tags:
+  - name: Customers
+    description: Operaciones sobre clientes
+
+paths:
+  /customers:
+    get:
+      tags: [Customers]
+      summary: Listar clientes
+      responses:
+        '200':
+          description: Lista de clientes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomerResponse'
+    post:
+      tags: [Customers]
+      summary: Crear cliente
+      description: DNI debe ser único.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerRequest'
+            examples:
+              ejemplo:
+                value:
+                  dni: "71234567"
+                  firstName: "Ana"
+                  lastName: "Pérez"
+                  email: "ana.perez@mail.com"
+                  phone: "+51 999888777"
+      responses:
+        '201':
+          description: Cliente creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+        '409':
+          description: Conflicto (DNI duplicado)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /customers/{id}:
+    get:
+      tags: [Customers]
+      summary: Obtener cliente por ID
+      parameters:
+        - $ref: '#/components/parameters/PathId'
+      responses:
+        '200':
+          description: Cliente encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+        '404':
+          description: No encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+    put:
+      tags: [Customers]
+      summary: Actualizar cliente
+      parameters:
+        - $ref: '#/components/parameters/PathId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerUpdateRequest'
+      responses:
+        '200':
+          description: Cliente actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+        '404':
+          description: No encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+    delete:
+      tags: [Customers]
+      summary: Eliminar cliente
+      description: No se puede eliminar si el cliente tiene cuentas activas.
+      parameters:
+        - $ref: '#/components/parameters/PathId'
+      responses:
+        '204':
+          description: Eliminado
+        '409':
+          description: Conflicto (cliente con cuentas activas)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: No encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+components:
+  parameters:
+    PathId:
+      in: path
+      name: id
+      required: true
+      schema:
+        type: integer
+        format: int64
+      description: ID del cliente
+
+  schemas:
+    CustomerRequest:
+      type: object
+      required: [dni, firstName, lastName, email]
+      properties:
+        dni:
+          type: string
+          minLength: 8
+          maxLength: 12
+          example: "71234567"
+        firstName:
+          type: string
+          example: "Ana"
+        lastName:
+          type: string
+          example: "Pérez"
+        email:
+          type: string
+          format: email
+          example: "ana.perez@mail.com"
+        phone:
+          type: string
+          example: "+51 999888777"
+
+    CustomerUpdateRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+
+    CustomerResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        dni:
+          type: string
+          example: "71234567"
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    ApiError:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+          example: 409
+        error:
+          type: string
+          example: Conflict
+        message:
+          type: string
+          example: "DNI ya registrado"
+        path:
+          type: string
