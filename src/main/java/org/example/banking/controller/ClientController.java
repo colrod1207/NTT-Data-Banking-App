@@ -2,12 +2,14 @@ package org.example.banking.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.example.banking.domain.Client;
 import org.example.banking.dto.client.request.CreateClientRequest;
 import org.example.banking.dto.client.request.PatchClientRequest;
-import org.example.banking.dto.account.request.UpdateClientRequest;
+import org.example.banking.dto.client.request.UpdateClientRequest;
 import org.example.banking.dto.response.ClientResponse;
 import org.example.banking.service.ClientService;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

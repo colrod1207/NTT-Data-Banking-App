@@ -6,7 +6,7 @@ import org.example.banking.domain.Account;
 import org.example.banking.dto.account.request.AmountRequest;
 import org.example.banking.dto.account.request.CreateAccountRequest;
 import org.example.banking.dto.account.request.PatchAccountRequest;
-import org.example.banking.dto.account.request.UpdateAccountRequest;
+import org.example.banking.dto.account.request.UpdateclientRequest;
 import org.example.banking.dto.account.request.TransferRequest;
 import org.example.banking.dto.account.response.AccountResponse;
 import org.example.banking.service.AccountService;
@@ -59,7 +59,7 @@ public class AccountController {
     @PutMapping("/accounts/{id}")
     @Operation(summary = "Actualizar tipo de cuenta (PUT)")
     public ResponseEntity<AccountResponse> update(@PathVariable Long id,
-                                                  @Valid @RequestBody UpdateAccountRequest req) {
+                                                  @Valid @RequestBody UpdateclientRequest req) {
         Account a = service.updateType(id, req.getType());
         return ResponseEntity.ok(AccountResponse.from(a));
     }
