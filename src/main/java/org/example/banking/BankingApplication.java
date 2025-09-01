@@ -21,7 +21,6 @@ public class BankingApplication {
         SpringApplication.run(BankingApplication.class, args);
     }
 
-    // ✅ Este método prueba la conexión a la base de datos al iniciar la app
     @Bean
     CommandLineRunner testConnection() {
         return args -> {
