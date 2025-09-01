@@ -3,7 +3,6 @@ package org.example.banking.service;
 import org.example.banking.domain.AccountType;
 import org.example.banking.domain.BankAccount;
 import org.example.banking.domain.Client;
-import org.example.banking.repository.AccountRepository;
 import org.example.banking.repository.ClientRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
