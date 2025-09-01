@@ -2,115 +2,81 @@ openapi: 3.0.1
 info:
   title: Banking API - Accounts
   version: 1.0.0
-  description: API de gestión de cuentas bancarias (apertura, depósito, consulta).
-
 servers:
   - url: http://localhost:8080
-    description: Servidor local
-
 paths:
   /accounts:
     post:
-      summary: Crear una nueva cuenta
-      description: Crea una cuenta bancaria con número autogenerado y saldo inicial.
+      summary: Crear cuenta
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/OpenAccountRequest'
+            schema: { $ref: '#/components/schemas/OpenAccountRequest' }
       responses:
         "200":
-          description: Cuenta creada exitosamente
+          description: OK
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/AccountResponse'
-
+              schema: { $ref: '#/components/schemas/AccountResponse' }
   /accounts/{id}/deposit:
     put:
-      summary: Realizar un depósito
-      description: Permite depositar dinero en una cuenta existente.
+      summary: Depósito
       parameters:
         - in: path
           name: id
           required: true
-          schema:
-            type: integer
-          description: ID de la cuenta
+          schema: { type: integer }
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/BalanceRequest'
+            schema: { $ref: '#/components/schemas/BalanceRequest' }
       responses:
         "200":
-          description: Depósito realizado exitosamente
+          description: OK
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/BalanceResponse'
-
+              schema: { $ref: '#/components/schemas/BalanceResponse' }
   /accounts/client/{clientId}:
     get:
-      summary: Obtener cuentas de un cliente
-      description: Devuelve la lista de cuentas asociadas a un cliente.
+      summary: Cuentas por cliente
       parameters:
         - in: path
           name: clientId
           required: true
-          schema:
-            type: integer
-          description: ID del cliente
+          schema: { type: integer }
       responses:
         "200":
-          description: Lista de cuentas del cliente
+          description: OK
           content:
             application/json:
               schema:
                 type: array
-                items:
-                  $ref: '#/components/schemas/AccountResponse'
-
+                items: { $ref: '#/components/schemas/AccountResponse' }
 components:
   schemas:
     OpenAccountRequest:
       type: object
+      required: [clientId, type, initialBalance]
       properties:
-        clientId:
-          type: integer
-        type:
-          type: string
-        initialBalance:
-          type: number
-          format: double
-
+        clientId: { type: integer }
+        type: { type: string }
+        initialBalance: { type: number, format: double }
     AccountResponse:
       type: object
       properties:
-        accountId:
-          type: integer
-        clientId:
-          type: integer
-        type:
-          type: string
-        balance:
-          type: number
-          format: double
-
+        accountId: { type: integer }
+        clientId: { type: integer }
+        type: { type: string }
+        balance: { type: number, format: double }
     BalanceRequest:
       type: object
+      required: [amount]
       properties:
-        amount:
-          type: number
-          format: double
-
+        amount: { type: number, format: double }
     BalanceResponse:
       type: object
       properties:
-        accountId:
-          type: integer
-        newBalance:
-          type: number
-          format: double
+        accountId: { type: integer }
+        newBalance: { type: number, format: double }
