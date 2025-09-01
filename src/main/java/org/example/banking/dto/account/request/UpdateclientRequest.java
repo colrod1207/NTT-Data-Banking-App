@@ -7,5 +7,6 @@ import javax.validation.constraints.NotNull;
 
 @Data
 public class UpdateAccountRequest {
-    @NotNull private AccountType type;
+    @NotNull
+    private AccountType type;
 }
