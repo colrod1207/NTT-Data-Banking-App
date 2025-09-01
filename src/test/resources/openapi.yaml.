@@ -1,1 +1,78 @@
+openapi: 3.0.3
+info:
+  title: Account Microservice API
+  version: 1.0.0
+paths:
+  /api/v1/accounts:
+    post:
+      operationId: createAccount
+      summary: Create a new account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAccountReq'
+      responses:
+        '201':
+          description: Account created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+  /api/v1/accounts/{id}:
+    get:
+      operationId: getAccountById
+      summary: Get account by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '404':
+          description: Not Found
+  /api/v1/clients/{clientId}/accounts:
+    get:
+      operationId: listAccountsByClient
+      summary: List accounts by client ID
+      parameters:
+        - name: clientId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Account' }
+components:
+  schemas:
+    CreateAccountReq:
+      type: object
+      required: [customerId, type, currency, initialDeposit]
+      properties:
+        customerId: { type: string }
+        type: { type: string, enum: [SAVINGS, CHECKING] }
+        currency: { type: string, example: PEN }
+        initialDeposit: { type: number, format: double }
+    Account:
+      type: object
+      required: [id, customerId, type, currency, balance, status]
+      properties:
+        id: { type: string }
+        customerId: { type: string }
+        type: { type: string }
+        currency: { type: string }
+        balance: { type: number, format: double }
+        status: { type: string, enum: [ACTIVE, BLOCKED, CLOSED] }
 
