@@ -1,11 +1,13 @@
 package org.example.banking.controller;
 
-import org.example.banking.domain.BankAccount;
-import org.example.banking.dto.account.request.DepositRequest;
-import org.example.banking.dto.account.request.OpenAccountRequest;
-import org.example.banking.dto.account.request.WithdrawRequest;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.example.banking.domain.Account;
+import org.example.banking.dto.account.request.AmountRequest;
+import org.example.banking.dto.account.request.CreateAccountRequest;
+import org.example.banking.dto.account.request.PatchAccountRequest;
+import org.example.banking.dto.account.request.UpdateAccountRequest;
 import org.example.banking.dto.account.response.AccountResponse;
-import org.example.banking.dto.account.response.BalanceResponse;
 import org.example.banking.service.AccountService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,78 +16,79 @@ import javax.validation.Valid;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/accounts")
+@RequestMapping
+@Tag(name = "Accounts", description = "CRUD de cuentas y operaciones de saldo")
 public class AccountController {
 
-    private final AccountService accountService;
-    public AccountController(AccountService accountService) {
-        this.accountService = accountService;
+    private final AccountService service;
+
+    public AccountController(AccountService service) {
+        this.service = service;
     }
 
-    // POST /accounts: Crear una cuenta para un cliente
-    @PostMapping
-    public ResponseEntity<AccountResponse> open(@Valid @RequestBody OpenAccountRequest req) {
-        BankAccount a = accountService.openAccount(req.getClientId(), req.getType(), req.getInitialBalance());
+    @PostMapping("/accounts")
+    @Operation(summary = "Crear cuenta")
+    public ResponseEntity<AccountResponse> create(@Valid @RequestBody CreateAccountRequest req) {
+        Account a = service.create(req.getClientId(), req.getType(), req.getInitialDeposit());
         return ResponseEntity.ok(AccountResponse.from(a));
     }
 
-    // GET /accounts: Listar TODAS las cuentas
-    @GetMapping
-    public ResponseEntity<?> listAll() {
+    @GetMapping("/accounts")
+    @Operation(summary = "Listar todas las cuentas")
+    public ResponseEntity<?> list() {
         return ResponseEntity.ok(
-                accountService.listAll()
-                        .stream()
-                        .map(AccountResponse::from)
-                        .collect(Collectors.toList())
+                service.list().stream().map(AccountResponse::from).collect(Collectors.toList())
         );
     }
 
-    // GET /accounts/{id}: Listar cuentas por ID DE CLIENTE (requerimiento del documento)
-    @GetMapping("/{id}")
-    public ResponseEntity<?> listByClient(@PathVariable Long id) {
+    @GetMapping("/clients/{clientId}/accounts")
+    @Operation(summary = "Listar cuentas por cliente")
+    public ResponseEntity<?> listByClient(@PathVariable Long clientId) {
         return ResponseEntity.ok(
-                accountService.listByClient(id)
-                        .stream()
-                        .map(AccountResponse::from)
-                        .collect(Collectors.toList())
+                service.listByClient(clientId).stream().map(AccountResponse::from).collect(Collectors.toList())
         );
     }
 
-    // GET /accounts/by-id/{accountId}: Obtener detalles de UNA cuenta por ID DE CUENTA
-    @GetMapping("/by-id/{accountId}")
-    public ResponseEntity<AccountResponse> getAccount(@PathVariable Long accountId) {
-        return ResponseEntity.ok(AccountResponse.from(accountService.get(accountId)));
+    @GetMapping("/accounts/{id}")
+    @Operation(summary = "Obtener cuenta por ID")
+    public ResponseEntity<AccountResponse> get(@PathVariable Long id) {
+        return ResponseEntity.ok(AccountResponse.from(service.get(id)));
     }
 
-    // PUT /accounts/{accountId}/deposit: Depositar en una CUENTA específica
-    @PutMapping("/{accountId}/deposit")
-    public ResponseEntity<BalanceResponse> deposit(@PathVariable Long accountId,
-                                                   @Valid @RequestBody DepositRequest req) {
-        accountService.deposit(accountId, req.getAmount());
-        BankAccount a = accountService.get(accountId);
-        return ResponseEntity.ok(new BalanceResponse(a.getId(), a.getBalance()));
+    @PutMapping("/accounts/{id}")
+    @Operation(summary = "Actualizar tipo de cuenta (PUT)")
+    public ResponseEntity<AccountResponse> update(@PathVariable Long id, @Valid @RequestBody UpdateAccountRequest req) {
+        Account a = service.updateType(id, req.getType());
+        return ResponseEntity.ok(AccountResponse.from(a));
     }
 
-    // PUT /accounts/{accountId}/withdraw: Retirar de una CUENTA específica
-    @PutMapping("/{accountId}/withdraw")
-    public ResponseEntity<BalanceResponse> withdraw(@PathVariable Long accountId,
-                                                    @Valid @RequestBody WithdrawRequest req) {
-        accountService.withdraw(accountId, req.getAmount());
-        BankAccount a = accountService.get(accountId);
-        return ResponseEntity.ok(new BalanceResponse(a.getId(), a.getBalance()));
+    @PatchMapping("/accounts/{id}")
+    @Operation(summary = "Actualizar parcialmente la cuenta (type)")
+    public ResponseEntity<AccountResponse> patch(@PathVariable Long id, @RequestBody PatchAccountRequest req) {
+        if (req.getType() == null) return ResponseEntity.ok(AccountResponse.from(service.get(id)));
+        Account a = service.updateType(id, req.getType());
+        return ResponseEntity.ok(AccountResponse.from(a));
     }
 
-    // GET /accounts/by-id/{accountId}/balance: (Opcional) Consultar solo saldo por ID DE CUENTA
-    @GetMapping("/by-id/{accountId}/balance")
-    public ResponseEntity<BalanceResponse> balance(@PathVariable Long accountId) {
-        BankAccount a = accountService.get(accountId);
-        return ResponseEntity.ok(new BalanceResponse(a.getId(), a.getBalance()));
+    @PostMapping("/accounts/{id}/deposit")
+    @Operation(summary = "Depositar")
+    public ResponseEntity<AccountResponse> deposit(@PathVariable Long id, @Valid @RequestBody AmountRequest req) {
+        Account a = service.deposit(id, req.getAmount());
+        return ResponseEntity.ok(AccountResponse.from(a));
     }
 
-    // DELETE /accounts/by-id/{accountId}: Eliminar una cuenta por ID DE CUENTA
-    @DeleteMapping("/{accountId}")
-    public ResponseEntity<Void> delete(@PathVariable Long accountId) {
-        accountService.delete(accountId);
+    @PostMapping("/accounts/{id}/withdraw")
+    @Operation(summary = "Retirar")
+    public ResponseEntity<AccountResponse> withdraw(@PathVariable Long id, @Valid @RequestBody AmountRequest req) {
+        Account a = service.withdraw(id, req.getAmount());
+        return ResponseEntity.ok(AccountResponse.from(a));
+    }
+
+    @DeleteMapping("/accounts/{id}")
+    @Operation(summary = "Eliminar cuenta")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 }
+

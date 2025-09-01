@@ -4,11 +4,11 @@ import lombok.Data;
 import org.example.banking.domain.AccountType;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
+import java.math.BigDecimal;
 
 @Data
-public class OpenAccountRequest {
+public class CreateAccountRequest {
     @NotNull private Long clientId;
-    @NotNull private AccountType type;      // SAVINGS | CHECKING
-    @Positive private Double initialBalance; // > 0
+    @NotNull private AccountType type;
+    @NotNull private BigDecimal initialDeposit; // >= 0 (validado en servicio)
 }
