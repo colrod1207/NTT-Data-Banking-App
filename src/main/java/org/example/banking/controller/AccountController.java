@@ -7,6 +7,7 @@ import org.example.banking.dto.account.request.AmountRequest;
 import org.example.banking.dto.account.request.CreateAccountRequest;
 import org.example.banking.dto.account.request.PatchAccountRequest;
 import org.example.banking.dto.account.request.UpdateAccountRequest;
+import org.example.banking.dto.account.request.TransferRequest;
 import org.example.banking.dto.account.response.AccountResponse;
 import org.example.banking.service.AccountService;
 import org.springframework.http.ResponseEntity;
@@ -86,6 +87,13 @@ public class AccountController {
                                                     @Valid @RequestBody AmountRequest req) {
         Account a = service.withdraw(id, req.getAmount());
         return ResponseEntity.ok(AccountResponse.from(a));
+    }
+
+    @PostMapping("/accounts/transfer")
+    @Operation(summary = "Transferir dinero entre cuentas")
+    public ResponseEntity<String> transfer(@Valid @RequestBody TransferRequest req) {
+        service.transfer(req.getFromAccountId(), req.getToAccountId(), req.getAmount());
+        return ResponseEntity.ok("Transferencia realizada con éxito");
     }
 
     @DeleteMapping("/accounts/{id}")
