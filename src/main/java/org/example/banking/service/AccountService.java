@@ -45,7 +45,7 @@ public class AccountService {
         Client client = clientRepository.findById(clientId)
                 .orElseThrow(() -> new IllegalArgumentException("Client not found: " + clientId));
 
-        // Generar número único
+        // Generar número único de cuenta
         String number;
         do {
             number = "ACC-" + System.currentTimeMillis() + "-" +
